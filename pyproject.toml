@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "defimap-pipeline"
+version = "0.1.0"
+description = ""
+authors = ["Ratchanon Wattanataweekul <wattanataweekul.r@gmail.com>"]
+readme = "README.md"
+packages = [{include = "defimap_pipeline"}]
+
+[tool.poetry.dependencies]
+python = "~3.10"
+apache-airflow = {version = "^2.5.0", extras = ["gcp_api"]}
+web3 = "5.31.0"
+eth-hash = {version = "0.3.3", extras = ["pycryptodome"]}
+aiohttp = "^3.8.3"
+asyncio = "^3.4.3"
+aiodecorators = "^0.2.1"
+psycopg2 = "^2.9.5"
+pyarrow = "^6.0.1"
+scipy = "^1.10.0"
+pandas-datareader = "^0.10.0"
+fsspec = "^2023.1.0"
+gcsfs = "^2023.1.0"
+db-dtypes = "^1.0.5"
+openpyxl = "^3.1.2"
+selenium = "^4.8.3"
+webdriver-manager = "^3.8.5"
+gspread = "^5.8.0"
+
+
+
+[tool.poetry.group.dev.dependencies]
+black = {version = "^23.1a1", allow-prereleases = true}
+ipykernel = "^6.21.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

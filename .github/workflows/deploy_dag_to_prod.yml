@@ -1,0 +1,59 @@
+name: Deploy DAGs to production
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    name: Deploy to GCS
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: 'read'
+      id-token: 'write'   # necessary for google-github-actions/auth to make API calls to GitHub OIDC provider
+    steps:
+      - uses: actions/checkout@v3.3.0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4.5.0
+        with:
+          python-version: 3.8.4
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          flake8 ./defimap_pipeline --count --select=E9,F63,F7,F82 --show-source --statistics
+          
+      - name: Google auth
+        id: "auth"
+        uses: 'google-github-actions/auth@v1'
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          export_environment_variables: true
+          
+      - name: Logs
+        run: |
+          echo $GCLOUD_PROJECT
+          gcloud config list 
+          echo "listing dirs from root:"
+          ls
+          cd ./defimap_pipeline
+          echo "listing dirs from ./defimap_pipeline
+            (this is the DAGs to be uploaded)"
+          ls
+      
+      - name: Download artifacts
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          path: "${{ steps.auth.outputs.credentials_file_path }}"
+          name: "credentials_file"
+        
+      - name: Upload DAG to GCS
+        uses: 'google-github-actions/upload-cloud-storage@v1'
+        with:
+          path: './defimap_pipeline'
+          destination: 'defimap-pipeline-pipel-1fb8eef6-bucket/dags'
+          parent: false
